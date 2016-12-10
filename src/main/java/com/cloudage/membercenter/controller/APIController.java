@@ -3,6 +3,7 @@ package com.cloudage.membercenter.controller;
 import java.io.File;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,8 @@ public class APIController {
 		
 		User user = userService.findByAccount(account);
 		if(user!=null && user.getPasswordHash().equals(passwordHash)){
-			request.getSession().setAttribute("current_user", user);
+			HttpSession session = request.getSession(true);
+			session.setAttribute("uid", user.getId());
 			return user;
 		}else{
 			return null;
@@ -74,11 +76,8 @@ public class APIController {
 	
 	@RequestMapping(value="/me", method=RequestMethod.GET)
 	public User getCurrentUser(HttpServletRequest request){
-		Object obj = request.getSession().getAttribute("current_user");
-		if(obj instanceof User){
-			return (User)obj;
-		}else{
-			return null;
-		}
+		HttpSession session = request.getSession(true);
+		Integer uid = (Integer) session.getAttribute("uid");
+		return userService.findById(uid);
 	}
 }

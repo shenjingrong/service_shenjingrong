@@ -1,5 +1,8 @@
 package com.cloudage.membercenter.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -23,9 +26,17 @@ public class RootController {
 		return "index";
 	}
 	
-//	@RequestMapping("/greeting")
-//    public String greeting(@RequestParam(value="name", required=false, defaultValue="World") String name, Model model) {
-//        model.addAttribute("name", name);
-//        return "index";
-//    }
+	@RequestMapping("/test")
+    public @ResponseBody String testSession(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Object obj = session.getAttribute("c");
+        int s = 0;
+        if(obj instanceof Integer){
+        	s = (int)obj;
+        }
+        
+        s += 1;
+        session.setAttribute("c", s);
+        return String.valueOf(s);
+    }
 }

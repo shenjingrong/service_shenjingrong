@@ -27,4 +27,9 @@ public class DefaultUserService implements IUserService {
 	public User findByAccount(String account) {
 		return userRepo.findUserByAccount(account);
 	}
+
+	@Override
+	public User findById(Integer id) {
+		return userRepo.findOne(id);
+	}
 }
