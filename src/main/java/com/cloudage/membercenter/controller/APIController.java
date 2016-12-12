@@ -1,6 +1,7 @@
 package com.cloudage.membercenter.controller;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -106,5 +107,23 @@ public class APIController {
 	@RequestMapping(value="/articles/{userId}")
 	public List<Article> getArticlesByUserID(@PathVariable Integer userId){
 		return articleService.findAllByAuthorId(userId);
+	}
+	
+	@RequestMapping(value="/publisharticle",method=RequestMethod.POST)
+	public Article publishArticle(
+			@RequestParam User user,
+			@RequestParam Date createDate,
+			@RequestParam Date editDate,
+			@RequestParam String title,
+			@RequestParam String text){
+		Article article = new Article();
+		article.setAuthor(user);
+		article.setCreateDate(createDate);
+		article.setEditDate(editDate);
+		article.setText(text);
+		article.setTitle(title);
+		articleService.save(article);
+		
+		return article;
 	}
 }
