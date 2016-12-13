@@ -43,4 +43,9 @@ public class DefaultArticleService implements IArticleService{
 		return articleRepo.findAll(pageRequest);
 	}
 
+	@Override
+	public Article findOne(int articleId) {
+		return articleRepo.findOne(articleId);
+	}
+
 }

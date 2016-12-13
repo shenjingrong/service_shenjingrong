@@ -4,10 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Transient;
@@ -16,35 +14,33 @@ import com.cloudage.membercenter.util.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class Article extends BaseEntity {
+public class Comment extends BaseEntity{
+	String content;
 	
+	Article article;
 	User author;
+	
 	Date createDate;
 	Date editDate;
-
-	String title;
-	String text;
 	
 	@ManyToOne(optional=false)
-	@JsonIgnore
+	public Article getArticle() {
+		return article;
+	}
+	
+	@ManyToOne(optional=false)
 	public User getAuthor() {
 		return author;
 	}
 
-	public void setAuthor(User author) {
-		this.author = author;
+	public String getContent() {
+		return content;
 	}
-	
-	@Transient
-	public String getAuthorName(){
-		return this.author.getName();
+
+	public void setContent(String content) {
+		this.content = content;
 	}
-	
-	@Transient
-	public String getAuthorAvatar(){
-		return this.author.getAvatar();
-	}
-	
+
 	@Column(updatable=false)
 	public Date getCreateDate() {
 		return createDate;
@@ -62,22 +58,14 @@ public class Article extends BaseEntity {
 		this.editDate = editDate;
 	}
 
-	public String getTitle() {
-		return title;
+	public void setArticle(Article article) {
+		this.article = article;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setAuthor(User author) {
+		this.author = author;
 	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
+	
 	@PreUpdate
 	void onPreUpdate(){
 		editDate = new Date();
@@ -87,4 +75,5 @@ public class Article extends BaseEntity {
 	void onPrePersist(){
 		createDate = new Date();
 	}
+	
 }

@@ -20,8 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.handler.UserRoleAuthorizationInterceptor;
 
 import com.cloudage.membercenter.entity.Article;
+import com.cloudage.membercenter.entity.Comment;
 import com.cloudage.membercenter.entity.User;
 import com.cloudage.membercenter.service.IArticleService;
+import com.cloudage.membercenter.service.ICommentService;
 import com.cloudage.membercenter.service.IUserService;
 
 @RestController
@@ -33,6 +35,9 @@ public class APIController {
 	
 	@Autowired
 	IArticleService articleService;
+	
+	@Autowired
+	ICommentService commentService;
 	
 	@RequestMapping(value = "/hello", method=RequestMethod.GET)
 	public @ResponseBody String hello(){
@@ -133,4 +138,31 @@ public class APIController {
 	public Page<Article> getFeeds(){
 		return getFeeds(0);
 	}
+	
+	@RequestMapping(value="/article/{article_id}/comments/{page}")
+	public Page<Comment> getCommentOfArticle(
+			@PathVariable int page,
+			@PathVariable int articleId){
+		return commentService.getComments(articleId,page);
+	}
+	
+	@RequestMapping(value="/article/{article_id}/comments")
+	public Page<Comment> getCommentOfArticle(
+			@PathVariable int articleId){
+		return commentService.getComments(articleId,0);
+	}
+	
+	@RequestMapping(value="/article/{article_id}/comments",method = RequestMethod.POST)
+	public Comment publishComment(
+			@RequestParam String content,
+			@PathVariable int article_id,
+			HttpServletRequest request){
+		Comment comment = new Comment();
+		Article article = articleService.findOne(article_id);
+		comment.setContent(content);
+		comment.setAuthor(getCurrentUser(request));
+		comment.setArticle(article);
+		return commentService.save(comment);
+	}
+	
 }
