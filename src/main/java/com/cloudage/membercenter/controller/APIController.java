@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -111,19 +112,25 @@ public class APIController {
 	
 	@RequestMapping(value="/publisharticle",method=RequestMethod.POST)
 	public Article publishArticle(
-			@RequestParam User user,
-			@RequestParam Date createDate,
-			@RequestParam Date editDate,
 			@RequestParam String title,
-			@RequestParam String text){
+			@RequestParam String text,
+			HttpServletRequest request){
 		Article article = new Article();
-		article.setAuthor(user);
-		article.setCreateDate(createDate);
-		article.setEditDate(editDate);
+		article.setAuthor(getCurrentUser(request));
 		article.setText(text);
 		article.setTitle(title);
 		articleService.save(article);
 		
 		return article;
+	}
+	
+	@RequestMapping(value="/feeds/{page}")
+	public Page<Article> getFeeds(@PathVariable int page){
+		return articleService.getFeeds(page);
+	}
+	
+	@RequestMapping(value="/feeds")
+	public Page<Article> getFeeds(){
+		return getFeeds(0);
 	}
 }

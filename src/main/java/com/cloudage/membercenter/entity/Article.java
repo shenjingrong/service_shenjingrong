@@ -34,6 +34,16 @@ public class Article extends BaseEntity {
 	public void setAuthor(User author) {
 		this.author = author;
 	}
+	
+	@Transient
+	public String getAuthorName(){
+		return this.author.getName();
+	}
+	
+	@Transient
+	public String getAuthorAvatar(){
+		return this.author.getAvatar();
+	}
 
 	@Column(updatable=false)
 	public Date getCreateDate() {
