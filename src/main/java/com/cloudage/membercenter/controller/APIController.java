@@ -21,9 +21,12 @@ import org.springframework.web.servlet.handler.UserRoleAuthorizationInterceptor;
 
 import com.cloudage.membercenter.entity.Article;
 import com.cloudage.membercenter.entity.Comment;
+import com.cloudage.membercenter.entity.Likes;
+import com.cloudage.membercenter.entity.Likes.Key;
 import com.cloudage.membercenter.entity.User;
 import com.cloudage.membercenter.service.IArticleService;
 import com.cloudage.membercenter.service.ICommentService;
+import com.cloudage.membercenter.service.ILikesService;
 import com.cloudage.membercenter.service.IUserService;
 
 @RestController
@@ -38,6 +41,9 @@ public class APIController {
 	
 	@Autowired
 	ICommentService commentService;
+	
+	@Autowired
+	ILikesService likesService;
 	
 	@RequestMapping(value = "/hello", method=RequestMethod.GET)
 	public @ResponseBody String hello(){
@@ -142,14 +148,14 @@ public class APIController {
 	@RequestMapping(value="/article/{article_id}/comments/{page}")
 	public Page<Comment> getCommentOfArticle(
 			@PathVariable int page,
-			@PathVariable int articleId){
-		return commentService.getComments(articleId,page);
+			@PathVariable int article_id){
+		return commentService.getComments(article_id,page);
 	}
 	
 	@RequestMapping(value="/article/{article_id}/comments")
 	public Page<Comment> getCommentOfArticle(
-			@PathVariable int articleId){
-		return commentService.getComments(articleId,0);
+			@PathVariable int article_id){
+		return commentService.getComments(article_id,0);
 	}
 	
 	@RequestMapping(value="/article/{article_id}/comments",method = RequestMethod.POST)
@@ -162,7 +168,48 @@ public class APIController {
 		comment.setContent(content);
 		comment.setAuthor(getCurrentUser(request));
 		comment.setArticle(article);
+		
 		return commentService.save(comment);
 	}
 	
+	@RequestMapping(value="/article/like/count/{article_id}")
+	public Integer countLikes(
+			@PathVariable int article_id){
+		return likesService.countLike(article_id);
+	}
+	
+	@RequestMapping(value="/article/{article_id}/like/checklike")
+	public boolean checkLike(
+			@PathVariable int article_id,
+			HttpServletRequest request){
+		boolean rs = false;
+		int count = likesService.checkLike(article_id, getCurrentUser(request).getId());
+		if(count!=0){
+			rs = true;
+		}
+		return rs;
+	}
+	
+	@RequestMapping(value="/article/likes/{article_id}",method = RequestMethod.POST)
+	public Integer changeLikes(
+			@PathVariable int article_id,
+			@RequestParam boolean isLike,
+			HttpServletRequest request){
+		Article article = articleService.findOne(article_id);
+		User user = getCurrentUser(request);
+		
+		if(isLike){
+			likesService.addLike(article, user);
+		}else {
+			likesService.removeLike(article, user);
+		}
+		return likesService.countLike(article_id);
+	}
+	
+	@RequestMapping("/article/s/{keyword}")
+	public Page<Article> searchArticleByKeyword(
+			@PathVariable String keyword,
+			@RequestParam(defaultValue="0") int page){
+		return articleService.searchArticlesByKeyword(keyword, page);
+	}
 }
